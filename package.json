@@ -1,7 +1,7 @@
 {
-  "name": "bootcampeapi",
+  "name": "bootcampapi",
   "version": "1.0.0",
-  "description": "Boot Campe Backend Api with node.js",
+  "description": "Bootcamp Backend Api with node.js",
   "main": "server.js",
   "scripts": {
     "start": "SET NODE_ENV=production && node server",
