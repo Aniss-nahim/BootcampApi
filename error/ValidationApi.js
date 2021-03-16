@@ -11,18 +11,20 @@ class ValidationApi extends ErrorApi{
 
     // Validation Error
     static Validate(err){
-        let message = '';
+        // defaults error server 500
+        let message = 'Server Error';
+        let status = 500;
         let errors= {};
         
         // Mongoose Bad Object key
         if(err.name ==='CastError'){
-            console.log("hello from VlidationApi")
             return this.NotFound();
         }
 
         // Mongoose duplicate key error
         if(err.code === 11000){
             message = 'Duplicate field value entered';
+            status = 400;
             // get the errors
             for(const key in err.keyValue){
                 errors[key] = `"${err.keyValue[key]}" has already been registered, please change the ${key}`;
@@ -31,13 +33,17 @@ class ValidationApi extends ErrorApi{
 
         // Mongoose validation error
         if(err.name === 'ValidationError'){
+            status = 400;
             let errorArray = Object.values(err.errors).map(val => val.properties);
             errorArray.forEach(error => {
                 errors[error.path] = error.message;
             });
         }
+
+        // no errors listed
+        if(Object.keys(errors).length === 0) errors = null;
         
-        return new ValidationApi(400, message, errors);
+        return new ValidationApi(status, message, errors);
     }
 } 
 

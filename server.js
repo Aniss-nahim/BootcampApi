@@ -5,14 +5,14 @@ const morgan = require('morgan');
 const connectDB = require('./database/database');
 const errorHandler = require('./error/errorHandler');
 
-// load Router
-const bootcampsRoutes = require('./routes/bootcamps');
-
 // Configure dotenv
 dotenv.config({path : './config/config.env'});
 
 // Database connection
 connectDB();
+
+// load Router
+const bootcampsRoutes = require('./routes/bootcamps');
 
 const app = express();
 

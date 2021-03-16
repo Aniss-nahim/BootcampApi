@@ -11,7 +11,7 @@ const errorHandler = (err, req, res, next) => {
     if(err instanceof ValidationApi){
         return res.status(err.status).json({
             success : false,
-            error : err.errors
+            error : err.errors || err.message
         });
     }
 
