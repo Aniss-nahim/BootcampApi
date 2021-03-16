@@ -3,9 +3,10 @@ const dotenv = require('dotenv');
 const colors = require('colors');
 const morgan = require('morgan');
 const connectDB = require('./database/database');
+const errorHandler = require('./error/errorHandler');
 
 // load Router
-const bootcomps = require('./routes/bootcamps');
+const bootcampsRoutes = require('./routes/bootcamps');
 
 // Configure dotenv
 dotenv.config({path : './config/config.env'});
@@ -23,8 +24,11 @@ if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
 
-// Mount routes
-app.use('/api/v1/bootcamps', bootcomps);
+// Mount routes on the app
+app.use('/api/v1/bootcamps', bootcampsRoutes);
+
+// Error Handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router
- .route('/')
+ .route('/') // prefix
  .get(getBootcamps)
  .post(createBootcamp);
 

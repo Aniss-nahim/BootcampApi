@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
  const BootcampSchema = new mongoose.Schema({
     name :{
         type : String,
-        require : [true , 'Name is required'],
+        required : [true , 'Name is required'],
         unique : true,
         trim :true,
         maxlength : [50, 'Name can\'t be more then 50 characters'] 
@@ -59,7 +59,7 @@ const mongoose = require('mongoose');
     careers: {
       // Array of strings
       type: [String],
-      required: true,
+      required: [true, 'Career is required'],
       enum: [
         'Web Development',
         'Mobile Development',
