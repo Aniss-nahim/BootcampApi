@@ -4,13 +4,19 @@ const {
     getBootcamp,
     createBootcamp,
     updateBootcamp,
-    deleteBootcamp    
+    deleteBootcamp,
+    getBootcampInRadius    
 } = require('../controllers/bootcamps');
+const paginate = require('../middlewares/paginate');
 const router = express.Router();
 
 router
+    .route('/radius/:zipcode/:distance/:unit(km|mi)?')
+    .get(getBootcampInRadius);
+
+router
  .route('/') // prefix
- .get(getBootcamps)
+ .get(getBootcamps, paginate)
  .post(createBootcamp);
 
 router

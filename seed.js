@@ -32,6 +32,9 @@ if(model){
         model.import();
     }else if(process.argv[2] === '-d'){
         model.clear();
+    }else{
+        console.log(`${process.argv[2]} is not a valide option`.red);
+        process.exit();
     }
 }else{
     console.log(`${process.argv[3]} dose not match any registred seeder`.red);

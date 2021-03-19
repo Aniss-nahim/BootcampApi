@@ -1,6 +1,7 @@
 const Bootcamp = require('../models/Bootcamp');
 const ErrorApi = require('../error/ErrorApi');
 const asyncHandler = require('../middlewares/async');
+const geocoder = require('../utils/geocoder');
 
 /**
  * @desc Get all bootcamps
@@ -8,10 +9,55 @@ const asyncHandler = require('../middlewares/async');
  * @access Public
  */
 exports.getBootcamps =asyncHandler( async (req, res, next)=>{
-    const bootcamps = await Bootcamp.find();
+    // copy req.query
+    const reqQuery = { ...req.query };
 
-    res.status(200)
-    .json({ success : true, count : bootcamps.length, data: bootcamps});
+    // Ignored fields
+    const ignoredFields = ['select', 'sort', 'page', 'limit'];
+    
+    // delete the exculded fields from the reqQuery
+    ignoredFields.forEach( field => delete reqQuery[field]);
+
+    // create String query
+    let queryString = JSON.stringify(reqQuery);
+    queryString = queryString.replace(/\b(g|l)te?|in\b/g, match => `$${match}`);
+    let  query = Bootcamp.find(JSON.parse(queryString));
+    
+    // select fields
+    if(req.query.select){
+        // get formated string
+        const fields = req.query.select.split(',').join(' ');
+        query.select(fields);
+    }
+
+    // sort
+    if(req.query.sort){
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy);
+    }else{
+        query = query.sort('-createdAt');
+    }
+
+    //Pagination
+    const limit = Math.abs(parseInt(req.query.limit, 10)) || 25;
+    const page = Math.abs(parseInt(req.query.page, 10)) || 1;
+    const start = (page - 1) * limit;
+    const total = await Bootcamp.countDocuments();
+
+    query = query.skip(start).limit(limit);
+
+    // Execute query
+    const bootcamps = await query;
+
+    // passing params in req to next middleware
+    req.results = {
+        limit,
+        page,
+        total ,
+        data : bootcamps
+    }
+
+    next();
 })
 
  /**
@@ -71,4 +117,31 @@ exports.deleteBootcamp = asyncHandler( async (req, res, next)=>{
         return next(ErrorApi.NotFound());
     }
     res.status(204).json({ success : true });
+})
+
+ /**
+ * @desc Get bootcamps with in a radius
+ * @route GET api/v1/bootcamps/radius/:zipcode/:distance/:unit([km,mi])?
+ * @access Public
+ */
+exports.getBootcampInRadius = asyncHandler( async (req, res, next)=>{
+    const {zipcode, distance, unit} = req.params;
+    console.log(unit);
+    // Get lat/lang giving a zipcode
+    const centerLocation = await geocoder.geocode(zipcode);
+
+    // calculate the angular distance (radius) between the centerLocation
+    // and all points move away by a distance :distance from this center
+    // Knowing that Earth radius =  6378 km or 3963 mi
+    let earthRadius = 6378;
+    if(unit === 'mi'){
+        earthRadius = 3963;
+    }
+    const radius =  distance / earthRadius;
+    // Query results
+    const bootcamps = await Bootcamp.find({
+        location : {$geoWithin: { $centerSphere: [ [ centerLocation[0].longitude, centerLocation[0].latitude ], radius ]}}
+    });
+
+    res.status(200).json({ success : true, count : bootcamps.length, data: bootcamps});
 })
