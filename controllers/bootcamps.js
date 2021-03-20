@@ -13,7 +13,7 @@ exports.getBootcamps =asyncHandler( async (req, res, next)=>{
     const reqQuery = { ...req.query };
 
     // Ignored fields
-    const ignoredFields = ['select', 'sort', 'page', 'limit'];
+    const ignoredFields = ['select', 'sort', 'page', 'limit', 'paginate'];
     
     // delete the exculded fields from the reqQuery
     ignoredFields.forEach( field => delete reqQuery[field]);
@@ -21,7 +21,7 @@ exports.getBootcamps =asyncHandler( async (req, res, next)=>{
     // create String query
     let queryString = JSON.stringify(reqQuery);
     queryString = queryString.replace(/\b(g|l)te?|in\b/g, match => `$${match}`);
-    let  query = Bootcamp.find(JSON.parse(queryString));
+    let  query = Bootcamp.find(JSON.parse(queryString)).populate('courses');
     
     // select fields
     if(req.query.select){
@@ -50,7 +50,7 @@ exports.getBootcamps =asyncHandler( async (req, res, next)=>{
     const bootcamps = await query;
 
     // passing params in req to next middleware
-    req.results = {
+    req.paginate = {
         limit,
         page,
         total ,
@@ -79,7 +79,7 @@ exports.getBootcamp = asyncHandler( async (req, res, next)=>{
  /**
  * @desc Create new bootcamp
  * @route POST api/v1/bootcamps
- * @access Public
+ * @access Private
  */
 exports.createBootcamp = asyncHandler( async (req, res, next)=>{
     const bootcamp = await Bootcamp.create(req.body);
@@ -91,7 +91,7 @@ exports.createBootcamp = asyncHandler( async (req, res, next)=>{
 /**
  * @desc Update a bootcamp
  * @route PUT api/v1/bootcamps/:id
- * @access Public
+ * @access Private
  */
 exports.updateBootcamp = asyncHandler( async (req, res, next)=>{
 
@@ -109,14 +109,17 @@ exports.updateBootcamp = asyncHandler( async (req, res, next)=>{
  /**
  * @desc Delete a bootcamp
  * @route DELETE api/v1/bootcamps/:id
- * @access Public
+ * @access Private
  */
 exports.deleteBootcamp = asyncHandler( async (req, res, next)=>{
-    const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+    const bootcamp = await Bootcamp.findById(req.params.id);
     if(!bootcamp){
         return next(ErrorApi.NotFound());
     }
-    res.status(204).json({ success : true });
+    // trigger mongoose middleware then remove 
+    await bootcamp.remove();
+
+    res.status(204).json({ success : true, message : "Bootcamp deleted" });
 })
 
  /**

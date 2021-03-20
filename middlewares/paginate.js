@@ -4,7 +4,7 @@
 const asyncHundler = require('./async');
 
 const paginate = asyncHundler((req, res, next) => {
-    const {page, limit, total, data} = req.results;
+    const {page, limit, total, data} = req.paginate;
     const start = (page - 1) * limit;
     const end = page*limit;
     const last_page = Math.ceil(total/limit);

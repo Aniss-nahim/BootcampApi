@@ -13,6 +13,7 @@ connectDB();
 
 // load Router
 const bootcampsRoutes = require('./routes/bootcamps');
+const coursesRoutes = require('./routes/courses');
 
 const app = express();
 
@@ -26,6 +27,7 @@ if(process.env.NODE_ENV === 'development'){
 
 // Mount routes on the app
 app.use('/api/v1/bootcamps', bootcampsRoutes);
+app.use('/api/v1/courses', coursesRoutes);
 
 // URL not found
 app.use((req,res,next) => {

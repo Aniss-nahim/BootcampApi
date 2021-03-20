@@ -3,6 +3,7 @@
  */
 const Seeder = require('./Seeder');
 const Bootcamp = require('../../models/Bootcamp');
+const CourseSeeder = require('./CourseSeeder');
 
 class BootcampSeeder extends Seeder{
     static resource = `${__dirname}/../../_data/bootcamps.json`;
@@ -17,6 +18,7 @@ class BootcampSeeder extends Seeder{
     }
 
     static clear(){
+        (new CourseSeeder).delete();
         (new BootcampSeeder).delete();
     }
 }

@@ -101,6 +101,9 @@ const geocoder = require('../../utils/geocoder');
       type: Date,
       default: Date.now
     },
+ },{
+  toJSON : {virtuals : true},
+  toObject : {virtuals:true}
  });
 
 // Generate slug before saving bootcamp
@@ -123,6 +126,21 @@ BootcampSchema.pre('save', async function(next){
     country: loc[0].countryCode
   };
   next();
+});
+
+// Cascade delete for courses
+BootcampSchema.pre('remove', async function(next){
+  await this.model('Course').deleteMany({ bootcamp : this._id});
+  next();
+});
+
+// Virtual courses propertie
+// Later Courses should be sorted by createdAt field
+BootcampSchema.virtual('courses', {
+  ref : 'Course',
+  localField : '_id',
+  foreignField : 'bootcamp'
+  // justOne : true // default is false
 });
 
 module.exports = BootcampSchema;
