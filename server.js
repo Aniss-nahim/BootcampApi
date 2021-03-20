@@ -1,7 +1,9 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const colors = require('colors');
 const morgan = require('morgan');
+const fileUpload = require('express-fileupload');
 const connectDB = require('./database/database');
 const errorHandler = require('./error/errorHandler');
 
@@ -14,6 +16,7 @@ connectDB();
 // load Router
 const bootcampsRoutes = require('./routes/bootcamps');
 const coursesRoutes = require('./routes/courses');
+const { static } = require('./database/schemas/CourseSchema');
 
 const app = express();
 
@@ -24,6 +27,12 @@ app.use(express.json());
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
+
+// static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// File uploading
+app.use(fileUpload());
 
 // Mount routes on the app
 app.use('/api/v1/bootcamps', bootcampsRoutes);

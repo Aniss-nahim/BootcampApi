@@ -1,3 +1,4 @@
+const path = require('path');
 const Bootcamp = require('../models/Bootcamp');
 const ErrorApi = require('../error/ErrorApi');
 const asyncHandler = require('../middlewares/async');
@@ -129,7 +130,7 @@ exports.deleteBootcamp = asyncHandler( async (req, res, next)=>{
  */
 exports.getBootcampInRadius = asyncHandler( async (req, res, next)=>{
     const {zipcode, distance, unit} = req.params;
-    console.log(unit);
+
     // Get lat/lang giving a zipcode
     const centerLocation = await geocoder.geocode(zipcode);
 
@@ -147,4 +148,49 @@ exports.getBootcampInRadius = asyncHandler( async (req, res, next)=>{
     });
 
     res.status(200).json({ success : true, count : bootcamps.length, data: bootcamps});
+})
+
+/**
+ * @desc Upload photo for bootcamp
+ * @route POST api/v1/bootcamps/:id/photo
+ * @access Private
+ */
+exports.uploadBootcampPhoto = asyncHandler( async (req, res, next)=>{
+    const bootcamp = await Bootcamp.findById(req.params.id);
+    if(!bootcamp){
+        return next(ErrorApi.NotFound());
+    }
+    
+    if(!req.files){
+        return next(ErrorApi.BadRequest('Please upload an image'));
+    }
+
+    const { file } = req.files;
+    const fileType = file.mimetype.split('/')[0];
+
+    // the file is an image
+    if(fileType !== 'image'){
+        return next(ErrorApi.BadRequest('The file should be an image'));
+    }
+
+    // Image size allowed
+    if(file.size > process.env.IMAGE_MAX_SIZE){
+        const maxSize = Math.ceil(process.env.IMAGE_MAX_SIZE / 1048576);
+        return next(ErrorApi.BadRequest(`Please upload an image with maximum size of ${maxSize}Mo`));
+    }
+   
+    // Create custom file.name
+    file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
+
+    // Move the image to the storage folder
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
+        if(err){
+            return next(ErrorApi.Internal());
+        }
+
+        await bootcamp.update({ photo : file.name });
+        bootcamp.photo = file.name;
+
+        res.status(200).json({ success : true, data: bootcamp });
+    });
 })

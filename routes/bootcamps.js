@@ -10,7 +10,8 @@ const {
     createBootcamp,
     updateBootcamp,
     deleteBootcamp,
-    getBootcampInRadius    
+    getBootcampInRadius ,
+    uploadBootcampPhoto   
 } = require('../controllers/bootcamps');
 
 // Pagination middleware
@@ -38,5 +39,9 @@ router
  .get(getBootcamp)
  .put(updateBootcamp)
  .delete(deleteBootcamp);
+
+router
+ .route('/:id/photo')
+ .put(uploadBootcampPhoto);
 
 module.exports = router;
