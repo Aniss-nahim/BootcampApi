@@ -14,6 +14,7 @@ dotenv.config({path : './config/config.env'});
 connectDB();
 
 // load Router
+const authRouter = require('./routes/auth');
 const bootcampsRoutes = require('./routes/bootcamps');
 const coursesRoutes = require('./routes/courses');
 const { static } = require('./database/schemas/CourseSchema');
@@ -34,11 +35,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // File uploading
 app.use(fileUpload({
     useTempFiles : true,
-    tempFileDir : '/public/tmp/',
-    debug : true
+    tempFileDir : '/public/tmp/'
+    // debug : true
 }));
 
 // Mount routes on the app
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/bootcamps', bootcampsRoutes);
 app.use('/api/v1/courses', coursesRoutes);
 
