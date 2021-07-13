@@ -10,18 +10,25 @@ const Bootcamp = require('../models/Bootcamp');
  * @access Public
  */
 exports.getCourses = asyncHandler( async(req, res, next) => {
-    let query;
+    let { query } = res.locals;
+    let total = await Course.countDocuments();
 
     // get courses of a bootcamp
     if(req.params.bootcampId){
-        query = Course.find( {bootcamp : req.params.bootcampId} );
+        query = query.where('bootcamp').equals(req.params.bootcampId);
+        total = await Course.countDocuments({bootcamp : req.params.bootcampId});
     }else{
-        query = Course.find().populate('bootcamp', 'name description careers');
+        query = query.populate('bootcamp', 'name description careers');
     }
-    const courses = await query;
 
-    res.status(200)
-    .json({ success : true, count : courses.length, data:courses});
+    if(!req.query.paginate || JSON.parse(req.query.paginate) !== true){
+        const courses = await query;
+        return res.status(200)
+        .json({ success : true, count : courses.length, data:courses});
+    }
+    
+    res.locals = { query, total}
+    next();
 });
 
 /**

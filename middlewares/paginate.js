@@ -2,12 +2,27 @@
  * Paginater engine middleware
  */
 const asyncHundler = require('./async');
+const ErrorApi = require('../error/ErrorApi');
 
-const paginate = asyncHundler((req, res, next) => {
-    const {page, limit, total, data} = req.paginate;
+const paginate = asyncHundler(async (req, res, next) => {
+    // Get data passed
+    let { query , total } = res.locals;
+
+    //Pagination
+    const limit = Math.abs(parseInt(req.query.limit, 10)) || 25;
+    const page = Math.abs(parseInt(req.query.page, 10)) || 1;
     const start = (page - 1) * limit;
     const end = page*limit;
     const last_page = Math.ceil(total/limit);
+
+    if(page > last_page){
+        return next(ErrorApi.NotFound());
+    }
+
+    query = query.skip(start).limit(limit);
+
+    // Execute query
+    const data = await query;
 
     // Set urls
     const urlObj  = new URL(`${req.protocol}://${req.get('host')}${ req.originalUrl}`);

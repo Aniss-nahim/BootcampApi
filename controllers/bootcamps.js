@@ -10,54 +10,19 @@ const geocoder = require('../utils/geocoder');
  * @access Public
  */
 exports.getBootcamps =asyncHandler( async (req, res, next)=>{
-    // copy req.query
-    const reqQuery = { ...req.query };
+    // Get query from previous middleware
+    let { query } = res.locals;
 
-    // Ignored fields
-    const ignoredFields = ['select', 'sort', 'page', 'limit', 'paginate'];
-    
-    // delete the exculded fields from the reqQuery
-    ignoredFields.forEach( field => delete reqQuery[field]);
-
-    // create String query
-    let queryString = JSON.stringify(reqQuery);
-    queryString = queryString.replace(/\b(g|l)te?|in\b/g, match => `$${match}`);
-    let  query = Bootcamp.find(JSON.parse(queryString)).populate('courses');
-    
-    // select fields
-    if(req.query.select){
-        // get formated string
-        const fields = req.query.select.split(',').join(' ');
-        query.select(fields);
-    }
-
-    // sort
-    if(req.query.sort){
-        const sortBy = req.query.sort.split(',').join(' ');
-        query = query.sort(sortBy);
-    }else{
-        query = query.sort('-createdAt');
-    }
-
-    //Pagination
-    const limit = Math.abs(parseInt(req.query.limit, 10)) || 25;
-    const page = Math.abs(parseInt(req.query.page, 10)) || 1;
-    const start = (page - 1) * limit;
+    // Populate with courses
+    query = query.populate('courses');
     const total = await Bootcamp.countDocuments();
 
-    query = query.skip(start).limit(limit);
-
-    // Execute query
-    const bootcamps = await query;
-
-    // passing params in req to next middleware
-    req.paginate = {
-        limit,
-        page,
-        total ,
-        data : bootcamps
+    if(!req.query.paginate || JSON.parse(req.query.paginate) === false){
+        const data = await query;
+        return res.status(200).json({success : true, count: total, data});
     }
 
+    res.locals = { query, total };
     next();
 })
 

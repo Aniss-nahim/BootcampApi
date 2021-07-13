@@ -3,6 +3,9 @@
  */
 const express = require('express');
 
+// Model
+const Bootcamp = require('../models/Bootcamp');
+
 // Controllers
 const {
     getBootcamps,
@@ -14,8 +17,10 @@ const {
     uploadBootcampPhoto   
 } = require('../controllers/bootcamps');
 
-// Pagination middleware
+// Advance middleware
 const paginate = require('../middlewares/paginate');
+const advanceQuery = require('../middlewares/advanceQuery');
+const sortResults = require('../middlewares/sortResults');
 
 // Include other resource routers
 const courseRouter = require('../routes/courses');
@@ -31,7 +36,12 @@ router
 
 router
  .route('/') // prefix
- .get(getBootcamps, paginate)
+ .get(
+     advanceQuery(Bootcamp), 
+     sortResults,
+     getBootcamps, 
+     paginate
+    )
  .post(createBootcamp);
 
 router
