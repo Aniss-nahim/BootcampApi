@@ -32,7 +32,11 @@ if(process.env.NODE_ENV === 'development'){
 app.use(express.static(path.join(__dirname, 'public')));
 
 // File uploading
-app.use(fileUpload());
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : '/public/tmp/',
+    debug : true
+}));
 
 // Mount routes on the app
 app.use('/api/v1/bootcamps', bootcampsRoutes);
