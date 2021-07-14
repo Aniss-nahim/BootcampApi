@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const fileUpload = require('express-fileupload');
 const connectDB = require('./database/database');
 const errorHandler = require('./error/errorHandler');
+const cookieParser = require('cookie-parser');
 
 // Configure dotenv
 dotenv.config({path : './config/config.env'});
@@ -14,6 +15,7 @@ dotenv.config({path : './config/config.env'});
 connectDB();
 
 // load Router
+const authRouter = require('./routes/auth');
 const bootcampsRoutes = require('./routes/bootcamps');
 const coursesRoutes = require('./routes/courses');
 const { static } = require('./database/schemas/CourseSchema');
@@ -22,6 +24,9 @@ const app = express();
 
 // Body parser
 app.use(express.json());
+
+// cookie parser using signed cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Dev logger middleware
 if(process.env.NODE_ENV === 'development'){
@@ -34,11 +39,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // File uploading
 app.use(fileUpload({
     useTempFiles : true,
-    tempFileDir : '/public/tmp/',
-    debug : true
+    tempFileDir : '/public/tmp/'
+    // debug : true
 }));
 
 // Mount routes on the app
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/bootcamps', bootcampsRoutes);
 app.use('/api/v1/courses', coursesRoutes);
 

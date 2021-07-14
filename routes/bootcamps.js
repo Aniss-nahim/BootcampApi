@@ -17,6 +17,9 @@ const {
     uploadBootcampPhoto   
 } = require('../controllers/bootcamps');
 
+// Guard middleware
+const guard = require('../middlewares/auth');
+
 // Advance middleware
 const paginate = require('../middlewares/paginate');
 const advanceQuery = require('../middlewares/advanceQuery');
@@ -42,16 +45,16 @@ router
      getBootcamps, 
      paginate
     )
- .post(createBootcamp);
+ .post(guard, createBootcamp);
 
 router
  .route('/:id')
  .get(getBootcamp)
- .put(updateBootcamp)
- .delete(deleteBootcamp);
+ .put(guard, updateBootcamp)
+ .delete(guard, deleteBootcamp);
 
 router
  .route('/:id/photo')
- .put(uploadBootcampPhoto);
+ .put(guard, uploadBootcampPhoto);
 
 module.exports = router;

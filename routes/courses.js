@@ -13,6 +13,9 @@ const {
     deleteCourse
 } = require('../controllers/courses');
 
+// Guard middleware
+const guard = require('../middlewares/auth');
+
 // Advance middleware
 const advanceQuery = require('../middlewares/advanceQuery');
 const sortResults = require('../middlewares/sortResults');
@@ -27,11 +30,11 @@ router.route('/')
     sortResults,
     getCourses,
     paginate
-).post(createCourse);
+).post(guard, createCourse);
 
 router.route('/:id')
 .get(getCourse)
-.put(updateCourse)
-.delete(deleteCourse);
+.put(guard, updateCourse)
+.delete(guard, deleteCourse);
 
 module.exports = router;
