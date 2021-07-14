@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const fileUpload = require('express-fileupload');
 const connectDB = require('./database/database');
 const errorHandler = require('./error/errorHandler');
+const cookieParser = require('cookie-parser');
 
 // Configure dotenv
 dotenv.config({path : './config/config.env'});
@@ -23,6 +24,9 @@ const app = express();
 
 // Body parser
 app.use(express.json());
+
+// cookie parser using signed cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Dev logger middleware
 if(process.env.NODE_ENV === 'development'){

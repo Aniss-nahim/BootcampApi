@@ -42,7 +42,7 @@ UserSchema.pre('save', async function(next) {
     next();
 });
 
-// Generat JWT from Authenticated users
+// Generate a JWT from Authenticated users
 UserSchema.methods.getSignedJWT = function(){
     return jwt.sign({id : this._id}, process.env.JWT_PRIVATE_KEY, {
         expiresIn : process.env.JWT_EXPIRES_KEY

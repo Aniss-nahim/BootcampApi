@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const ErrorApi = require('../error/ErrorApi');
 const asyncHandler = require('../middlewares/async');
+const sendTokenResponse = require('../utils/sendTokenResponse');
 
 /**
  * @desc Register user
@@ -17,12 +18,7 @@ exports.register = asyncHandler ( async (req, res, next) => {
         role
     });
 
-    // Generat Token
-    const token = user.getSignedJWT();
-
-    // return jwt 
-    res.status(201)
-        .json({success : true,  token});
+    sendTokenResponse(user, 200, res);
 });
 
 /**
@@ -32,6 +28,7 @@ exports.register = asyncHandler ( async (req, res, next) => {
  */
  exports.login = asyncHandler ( async (req, res, next) => {
     const { email, password } = req.body;
+
     // validate email and password
     if(!email || !password){
         return next(ErrorApi.BadRequest('Please provide an email and password'));
@@ -47,10 +44,16 @@ exports.register = asyncHandler ( async (req, res, next) => {
         return next(ErrorApi.UnAuthorized('Invalid credentials'));
     }
 
-    // Generat Token
-    const token = user.getSignedJWT();
-
-    // return jwt 
-    res.status(201)
-        .json({success : true,  token});
+    sendTokenResponse(user, 200, res);
 });
+
+/**
+ * @desc Get logged in user
+ * @route GET api/v1/auth/me
+ * @access Public
+ */
+ exports.getMe = asyncHandler ( async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    res.status(200)
+        .json({ success : true, data : user });
+ });
