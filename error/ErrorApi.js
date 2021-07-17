@@ -22,6 +22,11 @@ class ErrorApi extends Error{
         return new ErrorApi(401, message);
     }
 
+    // Forbidden
+    static Forbidden(message){
+        return new ErrorApi(403, message);
+    }
+
     // Internal Error
     static Internal(){
         return new ErrorApi(500, 'Server Error');
