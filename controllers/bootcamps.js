@@ -144,8 +144,13 @@ exports.getBootcampInRadius = asyncHandler( async (req, res, next)=>{
  */
 exports.uploadBootcampPhoto = asyncHandler( async (req, res, next)=>{
     const bootcamp = await Bootcamp.findById(req.params.id);
+
     if(!bootcamp){
         return next(ErrorApi.NotFound());
+    }
+    
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== "admin"){
+        return next(ErrorApi.Forbidden(`User with ID ${req.user.id} is unauthorized to update this bootcamp`));
     }
     
     if(!req.files){
