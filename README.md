@@ -1,8 +1,12 @@
 # Bootcamper Backend API Documentation
 
+<div style="text-align: center">
+    <img src="https://i.imgur.com/KbO2Soz.jpg" />
+</div>
+
 ---
 
-Bootcamper is a backend REST full api developed with node.js/Express framework for managing bootcamps. The developed api includes all the functionality below.
+Bootcamper is a backend RESTFUL api developed with node.js/Express framework for managing bootcamps. The developed api includes all the functionality below.
 
 ## Bootcamper Features
 
