@@ -4,8 +4,9 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const geocoder = require('../../utils/geocoder');
+const Schema =  mongoose.Schema;
 
- const BootcampSchema = new mongoose.Schema({
+ const BootcampSchema = new Schema({
     name :{
         type : String,
         required : [true , 'Name is required'],
@@ -101,6 +102,11 @@ const geocoder = require('../../utils/geocoder');
       type: Date,
       default: Date.now
     },
+    user : {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
  },{
   toJSON : {virtuals : true},
   toObject : {virtuals:true}
