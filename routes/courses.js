@@ -14,7 +14,7 @@ const {
 } = require('../controllers/courses');
 
 // Guard middleware
-const guard = require('../middlewares/auth');
+const { guard, accessRole } = require('../middlewares/auth');
 
 // Advance middleware
 const advanceQuery = require('../middlewares/advanceQuery');
@@ -30,11 +30,11 @@ router.route('/')
     sortResults,
     getCourses,
     paginate
-).post(guard, createCourse);
+).post(guard, accessRole('publisher', 'admin'), createCourse);
 
 router.route('/:id')
 .get(getCourse)
-.put(guard, updateCourse)
-.delete(guard, deleteCourse);
+.put(guard, accessRole('publisher', 'admin'), updateCourse)
+.delete(guard, accessRole('publisher', 'admin'), deleteCourse);
 
 module.exports = router;

@@ -6,7 +6,7 @@ const {
 } = require('../controllers/auth');
 
 // Guard middleware
-const guard = require('../middlewares/auth');
+const { guard } = require('../middlewares/auth');
 
 const router = express.Router();
 

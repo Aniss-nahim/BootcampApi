@@ -3,7 +3,7 @@ const asyncHandler = require('./async');
 const ErrorApi = require('../error/ErrorApi');
 const jwt = require('jsonwebtoken');
 
-const guard = asyncHandler ( async (req, res, next) => {
+exports.guard = asyncHandler ( async (req, res, next) => {
     // check the authorized header property
     const { authorization } = req.headers;
     let token;
@@ -25,4 +25,9 @@ const guard = asyncHandler ( async (req, res, next) => {
     next();
 });
 
-module.exports = guard;
+exports.accessRole = (...roles) => (req, res, next) => {
+    if(!roles.includes(req.user.role)){
+        return next(ErrorApi.Forbidden(`User role ${req.user.role} is unauthorized for accessing this route`));
+    }
+    next();
+}
