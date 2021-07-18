@@ -2,7 +2,8 @@ const express = require('express');
 const { 
     register, 
     login, 
-    getMe 
+    getMe,
+    forgotPassword
 } = require('../controllers/auth');
 
 // Guard middleware
@@ -10,8 +11,9 @@ const { guard } = require('../middlewares/auth');
 
 const router = express.Router();
 
+router.get('/me', guard, getMe);
 router.post('/register', register);
 router.post('/login', login);
-router.get('/me', guard, getMe);
+router.post('/forgotpassword', forgotPassword);
 
 module.exports = router;

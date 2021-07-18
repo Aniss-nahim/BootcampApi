@@ -57,3 +57,24 @@ exports.register = asyncHandler ( async (req, res, next) => {
     res.status(200)
         .json({ success : true, data : user });
  });
+
+ /**
+ * @desc Forgot password
+ * @route POST api/v1/auth/forgotpassword
+ * @access Public
+ */
+  exports.forgotPassword = asyncHandler ( async (req, res, next) => { 
+    const user = await User.findOne({email : req.body.email});
+    if(!user){
+        return next(ErrorApi.NotFound());
+    }
+
+    const resetToken = await user.getResetPasswordToken();
+
+    console.log(resetToken);
+
+    await user.save({ validateBeforeSave : false });
+
+    res.status(200)
+        .json({ success : true, data : user });
+ });
