@@ -62,8 +62,16 @@ exports.createCourse = asyncHandler( async(req, res, next) => {
     if(!bootcamp){
         return next(ErrorApi.NotFound());
     }
-    // set bootcamp value on the body request Object
+
+    // check ownership and permission
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return (ErrorApi.Forbidden(`User with ID ${req.user.id} is unauthorized to add courses to this bootcamp`));
+    }
+
+    // set bootcamp and user value on the body request Object
     req.body.bootcamp = req.params.bootcampId;
+    req.body.user = req.user.id;
+
     const course = await Course.create(req.body);
 
     res.status(201)
@@ -76,14 +84,24 @@ exports.createCourse = asyncHandler( async(req, res, next) => {
  * @access Private
  */
 exports.updateCourse = asyncHandler( async(req, res, next) => {
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
-        new : true, // to return the new version
-        runValidators: true
-    });
+    let course = await Course.findById(req.params.id);
 
     if(!course){
         return next(ErrorApi.NotFound());
     }
+
+    // check ownership and permission
+    if(course.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return (ErrorApi.Forbidden(`User with ID ${req.user.id} is unauthorized to update this course`));
+    }
+
+    course.user = req.user.id;
+
+    course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+        new : true, // to return the new version
+        runValidators: true
+    });
+
     res.status(200).json({ success : true, data: course});
 });
 
@@ -97,6 +115,12 @@ exports.deleteCourse = asyncHandler( async(req, res, next) => {
     if(!course){
         return next(ErrorApi.NotFound());
     }
+
+    // check ownership and permission
+    if(course.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return (ErrorApi.Forbidden(`User with ID ${req.user.id} is unauthorized to delete this course`));
+    }
+
     // remove the course
     await course.remove();
     
