@@ -1,24 +1,25 @@
-const User = require('../models/User');
-const ErrorApi = require('../error/ErrorApi');
-const asyncHandler = require('../middlewares/async');
-const sendTokenResponse = require('../utils/sendTokenResponse');
+const User = require("../models/User");
+const ErrorApi = require("../error/ErrorApi");
+const asyncHandler = require("../middlewares/async");
+const sendTokenResponse = require("../utils/sendTokenResponse");
+const sendEmail = require("../utils/sendEmail");
 
 /**
  * @desc Register user
  * @route POST api/v1/auth/register
  * @access Public
  */
-exports.register = asyncHandler ( async (req, res, next) => {
-    const { name, email, password, role } = req.body;
+exports.register = asyncHandler(async (req, res, next) => {
+  const { name, email, password, role } = req.body;
 
-    const user = await User.create({
-        name,
-        email,
-        password,
-        role
-    });
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+  });
 
-    sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res);
 });
 
 /**
@@ -26,25 +27,25 @@ exports.register = asyncHandler ( async (req, res, next) => {
  * @route POST api/v1/auth/login
  * @access Public
  */
- exports.login = asyncHandler ( async (req, res, next) => {
-    const { email, password } = req.body;
+exports.login = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
 
-    // validate email and password
-    if(!email || !password){
-        return next(ErrorApi.BadRequest('Please provide an email and password'));
-    }
+  // validate email and password
+  if (!email || !password) {
+    return next(ErrorApi.BadRequest("Please provide an email and password"));
+  }
 
-    // Check for user credentials
-    const user = await User.findOne({ email : email });
-    if(!user) {
-        return next(ErrorApi.UnAuthorized('Invalid credentials'));
-    }
-    const passwdIsCorrect = await user.matchPassword(password);
-    if(!passwdIsCorrect){
-        return next(ErrorApi.UnAuthorized('Invalid credentials'));
-    }
+  // Check for user credentials
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return next(ErrorApi.UnAuthorized("Invalid credentials"));
+  }
+  const passwdIsCorrect = await user.matchPassword(password);
+  if (!passwdIsCorrect) {
+    return next(ErrorApi.UnAuthorized("Invalid credentials"));
+  }
 
-    sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res);
 });
 
 /**
@@ -52,29 +53,42 @@ exports.register = asyncHandler ( async (req, res, next) => {
  * @route GET api/v1/auth/me
  * @access Public
  */
- exports.getMe = asyncHandler ( async (req, res, next) => {
-    const user = await User.findById(req.user.id);
-    res.status(200)
-        .json({ success : true, data : user });
- });
+exports.getMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({ success: true, data: user });
+});
 
- /**
+/**
  * @desc Forgot password
  * @route POST api/v1/auth/forgotpassword
  * @access Public
  */
-  exports.forgotPassword = asyncHandler ( async (req, res, next) => { 
-    const user = await User.findOne({email : req.body.email});
-    if(!user){
-        return next(ErrorApi.NotFound());
-    }
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(ErrorApi.NotFound());
+  }
 
-    const resetToken = await user.getResetPasswordToken();
+  const resetToken = await user.getResetPasswordToken();
+  // Create reset url
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/resetpassword/${resetToken}`;
 
-    console.log(resetToken);
+  const message = `You are reciving this email because you (or someone else) has requested the reset of a password, Please make a PUT request to : \n\n ${resetUrl} to change your password`;
 
-    await user.save({ validateBeforeSave : false });
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password reset token",
+      message,
+    });
+    res.status(200).json({ success: true, data: "Email sent" });
+  } catch (err) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
 
-    res.status(200)
-        .json({ success : true, data : user });
- });
+    await user.save({ validateBeforeSave: false });
+    return next(ErrorApi.Internal());
+  }
+});
