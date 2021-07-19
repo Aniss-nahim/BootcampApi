@@ -1,31 +1,61 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const colors = require('colors');
-const morgan = require('morgan');
-const connectDB = require('./database/database');
-const errorHandler = require('./error/errorHandler');
-
-// load Router
-const bootcampsRoutes = require('./routes/bootcamps');
+const path = require("path");
+const express = require("express");
+const dotenv = require("dotenv");
+const colors = require("colors");
+const morgan = require("morgan");
+const fileUpload = require("express-fileupload");
+const connectDB = require("./database/database");
+const errorHandler = require("./error/errorHandler");
+const cookieParser = require("cookie-parser");
 
 // Configure dotenv
-dotenv.config({path : './config/config.env'});
+dotenv.config({ path: "./config/config.env" });
 
 // Database connection
 connectDB();
+
+// load Router
+const authRouter = require("./routes/auth");
+const bootcampsRoutes = require("./routes/bootcamps");
+const coursesRoutes = require("./routes/courses");
+const usersRoutes = require("./routes/user");
+const { static } = require("./database/schemas/CourseSchema");
 
 const app = express();
 
 // Body parser
 app.use(express.json());
 
+// cookie parser using signed cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
 // Dev logger middleware
-if(process.env.NODE_ENV === 'development'){
-    app.use(morgan('dev'));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
 
+// static folder
+app.use(express.static(path.join(__dirname, "public")));
+
+// File uploading
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/public/tmp/",
+    // debug : true
+  })
+);
+
 // Mount routes on the app
-app.use('/api/v1/bootcamps', bootcampsRoutes);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/bootcamps", bootcampsRoutes);
+app.use("/api/v1/courses", coursesRoutes);
+app.use("/api/v1/users", usersRoutes);
+
+// URL not found
+app.use((req, res, next) => {
+  res.status(404).json({ success: false, error: "Not Found" });
+});
 
 // Error Handler
 app.use(errorHandler);
@@ -33,14 +63,16 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(
-    PORT, 
-    console.log(`Server running on ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold)
+  PORT,
+  console.log(
+    `Server running on ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
+  )
 );
 
 // Global handler for unhandled rejections error
-process.on('unhandledRejection', (error, promise) =>{
-    // display error
-    console.log(`Error : ${error}`.red);
-    // close server and exit process
-    server.close(() => process.exit(1));
-})
+process.on("unhandledRejection", (error, promise) => {
+  // display error
+  console.log(`Error : ${error.message}`.red);
+  // close server and exit process
+  server.close(() => process.exit(1));
+});
