@@ -3,8 +3,10 @@ const {
   register,
   login,
   getMe,
+  updateDetails,
   forgotPassword,
   resetPassword,
+  updatePassword,
 } = require("../controllers/auth");
 
 // Guard middleware
@@ -17,5 +19,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resettoken", resetPassword);
+router.put("/updatedetails", guard, updateDetails);
+router.put("/updatepassword", guard, updatePassword);
 
 module.exports = router;
