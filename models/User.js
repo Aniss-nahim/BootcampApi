@@ -2,7 +2,7 @@
  * User Model
  * @Schema UserSchema
  */
-const mongoose = require('mongoose');
-const UserSchema = require('../database/schemas/UserSchema');
+const mongoose = require("mongoose");
+const UserSchema = require("../database/schemas/UserSchema");
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);
