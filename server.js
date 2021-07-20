@@ -9,9 +9,10 @@ const errorHandler = require("./error/errorHandler");
 const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-var xss = require("xss-clean");
+const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
-var hpp = require("hpp");
+const hpp = require("hpp");
+const cors = require("cors");
 
 // Configure dotenv
 dotenv.config({ path: "./config/config.env" });
@@ -48,6 +49,8 @@ const apiLimiter = rateLimit({
 app.use("/api/", apiLimiter);
 // Prevent Http paramater pollution attacks
 app.use(hpp());
+// Enable cors to publish the API
+app.use(cors());
 
 // Dev logger middleware
 if (process.env.NODE_ENV === "development") {
