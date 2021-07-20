@@ -50,6 +50,27 @@ exports.login = asyncHandler(async (req, res, next) => {
 });
 
 /**
+ * @desc logout the current user
+ * @route GET api/v1/auth/logout
+ * @access Private
+ */
+exports.logout = asyncHandler(async (req, res, next) => {
+  if (!req.user.id) {
+    return next(ErrorApi.NotFound());
+  }
+
+  res
+    .cookie("token", "none", {
+      expires: new Date(Date.now()) + 10 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      signed: true,
+    })
+    .status(200)
+    .json({ success: true, data: {} });
+});
+
+/**
  * @desc Get logged in user
  * @route GET api/v1/auth/me
  * @access Private
