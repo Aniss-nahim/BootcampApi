@@ -19,6 +19,7 @@ const authRouter = require("./routes/auth");
 const bootcampsRoutes = require("./routes/bootcamps");
 const coursesRoutes = require("./routes/courses");
 const usersRoutes = require("./routes/user");
+const reviewRoutes = require("./routes/reviews");
 const { static } = require("./database/schemas/CourseSchema");
 
 const app = express();
@@ -51,6 +52,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/bootcamps", bootcampsRoutes);
 app.use("/api/v1/courses", coursesRoutes);
 app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 
 // URL not found
 app.use((req, res, next) => {

@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const ErrorApi = require("../error/ErrorApi");
 const asyncHandler = require("../middlewares/async");
+const sendTokenResponse = require("../utils/sendTokenResponse");
 
 /**
  * @desc Get users
@@ -54,12 +55,17 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @desc Update user
+ * @desc Update user deatails
  * @route PUT api/v1/users/:id
  * @access Private admin only
  */
 exports.updateUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+  const fieldsToUpdate = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findByIdAndUpdate(req.params.id, fieldsToUpdate, {
     new: true,
     runValidators: true,
   });
@@ -69,6 +75,24 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   }
 
   res.status(200).json({ success: true, data: user });
+});
+
+/**
+ * @desc Update user password
+ * @route PUT api/v1/users/:id/password
+ * @access Private admin only
+ */
+exports.updateUserPassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return next(ErrorApi.NotFound());
+  }
+  // updating password
+  user.password = req.body.password;
+  await user.save({ validateBeforeSave: false });
+
+  sendTokenResponse(user, 200, res);
 });
 
 /**

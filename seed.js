@@ -12,6 +12,8 @@ dotenv.config({ path: "./config/config.env" });
 // Load Seeders here
 const BootcampSeeder = require("./database/seeders/BootcampSeeder");
 const CourseSeeder = require("./database/seeders/CourseSeeder");
+const UserSeeder = require("./database/seeders/UserSeeder");
+const ReviewSeeder = require("./database/seeders/ReviewSeeder");
 
 // DB connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -25,6 +27,8 @@ mongoose.connect(process.env.MONGO_URI, {
 const Seeders = new Map([
   ["bootcamp", BootcampSeeder],
   ["course", CourseSeeder],
+  ["user", UserSeeder],
+  ["review", ReviewSeeder],
 ]);
 
 const model = Seeders.get(process.argv[3]);
