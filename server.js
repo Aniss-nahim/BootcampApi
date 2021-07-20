@@ -8,6 +8,10 @@ const connectDB = require("./database/database");
 const errorHandler = require("./error/errorHandler");
 const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+var xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+var hpp = require("hpp");
 
 // Configure dotenv
 dotenv.config({ path: "./config/config.env" });
@@ -30,8 +34,20 @@ app.use(express.json());
 
 // cookie parser using signed cookies
 app.use(cookieParser(process.env.COOKIE_SECRET));
-// mongo sanitizer for NoSQL injections
+// data sanitizer for NoSQL injections
 app.use(mongoSanitize());
+// Set security headers
+app.use(helmet());
+// Prevent XSS
+app.use(xss());
+// Http request rating limit
+const apiLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+});
+app.use("/api/", apiLimiter);
+// Prevent Http paramater pollution attacks
+app.use(hpp());
 
 // Dev logger middleware
 if (process.env.NODE_ENV === "development") {
