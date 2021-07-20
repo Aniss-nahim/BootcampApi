@@ -7,6 +7,7 @@ const fileUpload = require("express-fileupload");
 const connectDB = require("./database/database");
 const errorHandler = require("./error/errorHandler");
 const cookieParser = require("cookie-parser");
+const mongoSanitize = require("express-mongo-sanitize");
 
 // Configure dotenv
 dotenv.config({ path: "./config/config.env" });
@@ -29,6 +30,8 @@ app.use(express.json());
 
 // cookie parser using signed cookies
 app.use(cookieParser(process.env.COOKIE_SECRET));
+// mongo sanitizer for NoSQL injections
+app.use(mongoSanitize());
 
 // Dev logger middleware
 if (process.env.NODE_ENV === "development") {

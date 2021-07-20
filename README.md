@@ -1,16 +1,14 @@
-# Bootcamper Backend API Documentation
+## Bootcamper Backend API Documentation
 
 <div style="text-align: center">
     <img src="https://i.imgur.com/KbO2Soz.jpg" />
 </div>
 
----
-
 Bootcamper is a backend RESTFUL api developed with node.js/Express framework for managing bootcamps. The developed api includes all the functionality below.
 
-## Bootcamper Features
-
 ### Bootcamps module
+
+---
 
 - List all bootcamps in the database
 
@@ -50,6 +48,8 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
 
 ### Courses module
 
+---
+
 - List all courses for bootcamp
 
   - Pagination
@@ -84,6 +84,8 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
 
 ### Reviews module
 
+---
+
 - List all reviews for a bootcamp
 - List all reviews in general
 
@@ -103,6 +105,8 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
   - Owner only
 
 ### Users module & Authentication
+
+---
 
 - Authentication using [JWT](https://jwt.io/)/Cookies
 
@@ -147,4 +151,25 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
 
 - Users can only be made admin by updating the database field manually
 
-### Security module (comming soon ...)
+### Security module
+
+---
+
+- Encrypt password using Bcrypt hashing function ans reset token with signed and httpOnly cookies
+- Prevent NoSQL injections
+- Headers for security (helmet)
+- Prevent cross site request forgery XSRF
+- Prevent cross site scripting XSS
+- Add a rate limit for requests of 100 request per 10 minutes
+- Protect againts http param polution
+- Use cros to make API public (for now)
+
+## Documentation
+
+---
+
+- Use Postman to create documentation
+- Use docgen to create HTML files from Postman
+- Add hmtl files as the / route for the api
+
+## Deployment ( comming soon )
