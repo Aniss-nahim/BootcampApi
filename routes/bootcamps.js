@@ -27,11 +27,13 @@ const sortResults = require("../middlewares/sortResults");
 
 // Include other resource routers
 const courseRouter = require("../routes/courses");
+const reviewRouter = require("./reviews");
 
 const router = express.Router();
 
 // Re-route into other resource
 router.use("/:bootcampId/courses", courseRouter);
+router.use("/:bootcampId/reviews", reviewRouter);
 
 router
   .route("/radius/:zipcode/:distance/:unit(km|mi)?")

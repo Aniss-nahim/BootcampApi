@@ -96,7 +96,7 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
 - Get a single review
 - Create a review
   - Authenticated users only
-  - Must have the role **publisher** ou **admin**
+  - Must have the role **publisher** ou **user**
 - Update reviews
   - Owner only
 - Delete review
