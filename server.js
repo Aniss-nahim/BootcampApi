@@ -50,7 +50,7 @@ app.use("/api/", apiLimiter);
 // Prevent Http paramater pollution attacks
 app.use(hpp());
 // Enable cors to publish the API
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:8000" }));
 
 // Dev logger middleware
 if (process.env.NODE_ENV === "development") {
