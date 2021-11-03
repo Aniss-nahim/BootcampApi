@@ -166,10 +166,8 @@ Bootcamper is a backend RESTFUL api developed with node.js/Express framework for
 
 ## Documentation
 
----
-
-- Use Postman to create documentation
-- Use docgen to create HTML files from Postman
+- Use Postman to create documentation [https://documenter.getpostman.com/view/12028116/UVC2F83h](Postman Collection)
+- Use docgen to create HTML files from Postman [https://aniss-nahim.github.io/BootcampApi/](Documentation)
 - Add hmtl files as the / route for the api
 
 ## Deployment ( comming soon )
